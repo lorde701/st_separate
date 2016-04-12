@@ -114,86 +114,24 @@ void MainWindow::on_pushButton_clicked()
     QString nameOpenFile = QFileDialog::getOpenFileName(0, "Открыть файл", "../Separate", "*.txt *.xls *.xlsx");
     ui->lineEditReadFile->setText(nameOpenFile);
     readFile(nameOpenFile);
-/*
+
     QStandardItemModel *model = new QStandardItemModel;
     QStandardItem *item;
 
-
-
-
     if (!colName.isEmpty()) {
-        int n = 0;
-        QStringList tempColName = colName;
-        ui->tableWidget->setRowCount(colSize);
-        for (int i = 0; i < colSize; i++) {
-            for (int j = 0; j < strSize; j++) {
-                if (i == 0) {
-                    item = new QTableWidgetItem(QString(tempColName.front()));
-                    ui->tableWidget->setItem(i, j, item);
-                    tempColName.pop_front();
-                }
-                else {
-                    item = new QTableWidgetItem(QString::number(array[n++]));
-                    ui->tableWidget->setItem(i, j, item);
-                }
-
-            }
-        }
+        model->setHorizontalHeaderLabels(colName);
     }
-    else {
-        QTableWidgetItem *item;
-        int n = 0;
-        ui->tableWidget->setRowCount(colSize);
-    for (int i = 0; i < colSize; i++) {
+
+    int n = 0;
+    for (int i = 0; i < colSize-1; i++) {
         for (int j = 0; j < strSize; j++) {
-                item = new QTableWidgetItem(QString::number(array[n++]));
-                ui->tableWidget->setItem(i, j, item);
-
+            item = new QStandardItem(QString::number(array[n++]));
+            model->setItem(i, j, item);
             }
 
         }
-    }
 
-
-
-
-    */
-        ui->tableWidget->setColumnCount(strSize);
-        if (!colName.isEmpty()) {
-            int n = 0;
-            QStringList tempColName = colName;
-            QTableWidgetItem *item;
-            ui->tableWidget->setRowCount(colSize);
-            for (int i = 0; i < colSize; i++) {
-                for (int j = 0; j < strSize; j++) {
-                    if (i == 0) {
-                        item = new QTableWidgetItem(QString(tempColName.front()));
-                        ui->tableWidget->setItem(i, j, item);
-                        tempColName.pop_front();
-                    }
-                    else {
-                        item = new QTableWidgetItem(QString::number(array[n++]));
-                        ui->tableWidget->setItem(i, j, item);
-                    }
-
-                }
-            }
-        }
-        else {
-            QTableWidgetItem *item;
-            int n = 0;
-            ui->tableWidget->setRowCount(colSize);
-        for (int i = 0; i < colSize; i++) {
-            for (int j = 0; j < strSize; j++) {
-                    item = new QTableWidgetItem(QString::number(array[n++]));
-                    ui->tableWidget->setItem(i, j, item);
-
-                }
-
-            }
-        }
-        qDebug() << "strSize = " << strSize;
-        qDebug() << "colSize = " << colSize;
+    ui->tableView->setModel(model);
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -306,6 +244,7 @@ void MainWindow::on_lineEdit_editingFinished()
             break;
         }
     }
+      qSort(strNumbers.begin(), strNumbers.end());
 
 }
 
@@ -315,6 +254,15 @@ void MainWindow::on_pushButtonSave_clicked() {
 }
 
 void MainWindow::on_pushButton_3_clicked() {
+
+    //ui->tableView_2->clearSpans();
+
+    /*QModelIndexList selectedRows = ui->tableView_2->selectionModel()->selectedRows();
+    while (!selectedRows.empty())
+    {
+        ui->tableView_2->removeRow(selectedRows[0].row());
+        selectedRows = ui->tableView_2->selectionModel()->selectedRows();
+    }*/
 
     QStandardItemModel *model = new QStandardItemModel;
     QStandardItem *item;
@@ -367,16 +315,105 @@ void MainWindow::on_pushButton_3_clicked() {
             ui->tableView_2->setModel(model);
     }
 
+    if (ui->radioButton_2->isChecked()) {
+
+       // QStringList tempColName = colName;
+       // QStringList horizontalHeader;
+
+        int amount_col = strSize;
+        int amount_str = colSize;
+        int step = ui->lineEditStep->text().toInt();
+        double eps = ui->lineEditEps->text().toDouble();
+        int col_number = ui->lineEditColNum->text().toInt();
+        int num = 0;
+
+
+        for ( int k = 0; k < amount_col; k++ )
+        {
+            item = new QStandardItem(QString::number(array[0*strSize + k]));
+            model->setItem(num, k, item);
+            //fin << setw(NUMBERS_WIDTH) << arr[0][k];
+            //cout << setw(NUMBERS_WIDTH) << arr[0][k];
+        }
+        num++;
+        //fin << endl;
+        //cout << endl;
+
+        /*for ( int k = 0; k < amount_col; k++ )
+        {
+            item = new QStandardItem(QString::number(array[1*strSize + k]));
+            model->setItem(num, k, item);
+            //fin << setw(NUMBERS_WIDTH) << arr[1][k];
+            //cout << setw(NUMBERS_WIDTH) << arr[1][k];
+        }
+        num++;*/
+        //fin << endl;
+        //cout << endl;/**/
+
+
+        int ptr_tek_el = 1;
+        int j = ptr_tek_el + 1;
+        while ( j < amount_str )
+        {
+            while ( (j < ptr_tek_el + step) && (j < amount_str) )
+            {
+                double arr_ptr = array[ptr_tek_el*strSize + col_number]; //atof(arr[ptr_tek_el][col_number].c_str());
+                double arr_tek = array[j*strSize + col_number]; //atof(arr[j][col_number].c_str());
+
+                if ( abs((arr_ptr - arr_tek)/arr_ptr) > eps )
+                {
+                    for ( int k = 0; k < amount_col; k++ )
+                    {
+                        item = new QStandardItem(QString::number(array[j*strSize + k]));
+                        //l = l + strSize;
+                        model->setItem(num, k, item);
+
+                        //fin << setw(NUMBERS_WIDTH) << arr[j][k];
+                        //cout << setw(NUMBERS_WIDTH) << arr[j][k];
+                    }
+                    num++;
+                    //fin << endl;
+                    //cout << endl;
+                    ptr_tek_el = j;
+                    j = ptr_tek_el + 1;
+                }
+                else
+                    j = j+1;
+            }
+            if ( ptr_tek_el + step < amount_str)
+            {
+                for ( int k = 0; k < amount_col; k++ )
+                        {
+                            item = new QStandardItem(QString::number(array[ptr_tek_el*strSize + k]));
+                             //l = l + strSize;
+                            model->setItem(num, k, item);
+                            //fin << setw(NUMBERS_WIDTH) << arr[ptr_tek_el + step][k];
+                            //cout << setw(NUMBERS_WIDTH) << arr[ptr_tek_el + step][k];
+                        }
+                num++;
+                        //fin << endl;
+                        //cout << endl;
+                ptr_tek_el += step;
+                j = ptr_tek_el + 1;
+            }
+
+        }
+        qDebug() << "num = " << num;
+
+
+
+
+        model->setHorizontalHeaderLabels(colName);
+        ui->tableView_2->setModel(model);
+
+
+    }
+
 }
 
 
-
-
-
-
-
-
-
-
-
-
+void MainWindow::on_pushButton_4_clicked()
+{
+   // if (ui->tableView_2->)
+    ui->tableView_2->clearSpans();
+}
