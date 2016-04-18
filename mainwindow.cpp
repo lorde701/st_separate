@@ -50,7 +50,7 @@ void MainWindow::readFile(QString nameFileOpen)
         QString lineStr;
         QStringList stringList, tempList;
         fileOpen.close();
-        colSize = list->size(); //длина строки
+        colSize = list->size(); //днила столбца
         for ( int i = 0; i < colSize; i++ ) {
             lineStr = list->front();
            // qDebug() << "Первая строка - " << lineStr;
@@ -68,7 +68,7 @@ void MainWindow::readFile(QString nameFileOpen)
         if (ok) {
             /*double*/
             qDebug() << "по тру - дабл";
-            array = new double [strSize*colSize];
+            array = new double [strSize*colSize - strSize]; //!!!!!!!!!!!!!!!!!!!!!!
             for (int i = 0; i < strSize*colSize; i++) {
                 array[i] = stringList.front().toDouble();
                 stringList.pop_front();
@@ -251,22 +251,22 @@ void MainWindow::on_lineEdit_editingFinished()
 void MainWindow::on_pushButtonSave_clicked() {
     QString nameSaveFile = QFileDialog::getSaveFileName(0, "Сохранить файл", "../Separate", "*.txt *.xls *.xlsx");
     ui->lineEditWriteFile->setText(nameSaveFile);
+
+    QFile saveFile (nameSaveFile);
+    if (saveFile.open(QIODevice::WriteOnly)) {
+        saveFile.write("fhbdklskjhbfdkj");
+    }
 }
 
 void MainWindow::on_pushButton_3_clicked() {
 
-    //ui->tableView_2->clearSpans();
-
-    /*QModelIndexList selectedRows = ui->tableView_2->selectionModel()->selectedRows();
-    while (!selectedRows.empty())
-    {
-        ui->tableView_2->removeRow(selectedRows[0].row());
-        selectedRows = ui->tableView_2->selectionModel()->selectedRows();
-    }*/
-
     QStandardItemModel *model = new QStandardItemModel;
     QStandardItem *item;
+    model->setHorizontalHeaderLabels(QStringList(""));
+    QStringList tempColName = colName;
 
+
+    ui->tableView_2->setModel(model);
 
 
     //QTableWidgetItem *item;
@@ -277,7 +277,6 @@ void MainWindow::on_pushButton_3_clicked() {
         int elStrNumbers;
         QStringList horizontalHeader;
         int inp = 0;
-        QStringList tempColName = colName;
 
 
         if (!colName.isEmpty()) {
@@ -324,7 +323,7 @@ void MainWindow::on_pushButton_3_clicked() {
         int amount_str = colSize;
         int step = ui->lineEditStep->text().toInt();
         double eps = ui->lineEditEps->text().toDouble();
-        int col_number = ui->lineEditColNum->text().toInt();
+        int col_number = ui->lineEditColNum->text().toInt()-1;
         int num = 0;
 
 
@@ -336,31 +335,18 @@ void MainWindow::on_pushButton_3_clicked() {
             //cout << setw(NUMBERS_WIDTH) << arr[0][k];
         }
         num++;
-        //fin << endl;
-        //cout << endl;
 
-        /*for ( int k = 0; k < amount_col; k++ )
-        {
-            item = new QStandardItem(QString::number(array[1*strSize + k]));
-            model->setItem(num, k, item);
-            //fin << setw(NUMBERS_WIDTH) << arr[1][k];
-            //cout << setw(NUMBERS_WIDTH) << arr[1][k];
-        }
-        num++;*/
-        //fin << endl;
-        //cout << endl;/**/
-
-
-        int ptr_tek_el = 1;
+        int ptr_tek_el = 0;
         int j = ptr_tek_el + 1;
-        while ( j < amount_str )
-        {
+        while ( j < amount_str ) {
             while ( (j < ptr_tek_el + step) && (j < amount_str) )
             {
                 double arr_ptr = array[ptr_tek_el*strSize + col_number]; //atof(arr[ptr_tek_el][col_number].c_str());
                 double arr_tek = array[j*strSize + col_number]; //atof(arr[j][col_number].c_str());
 
-                if ( abs((arr_ptr - arr_tek)/arr_ptr) > eps )
+                double temp = double((arr_ptr - arr_tek)/arr_ptr);
+                temp = temp < 0 ? -temp : temp;
+                if ( ((temp > eps) || (arr_ptr == 0)) && (ptr_tek_el + step < amount_str))
                 {
                     for ( int k = 0; k < amount_col; k++ )
                     {
@@ -380,16 +366,19 @@ void MainWindow::on_pushButton_3_clicked() {
                 else
                     j = j+1;
             }
-            if ( ptr_tek_el + step < amount_str)
+            if ( ptr_tek_el + step < amount_str )
             {
-                for ( int k = 0; k < amount_col; k++ )
-                        {
-                            item = new QStandardItem(QString::number(array[ptr_tek_el*strSize + k]));
+                for ( int k = 0; k < amount_col; k++ ) {
+                    int dl = strSize*colSize - strSize;
+                    int n = (ptr_tek_el+step)*strSize + k;
+                    if (n < dl) {
+                            item = new QStandardItem(QString::number(array[(ptr_tek_el+step)*strSize + k]));
                              //l = l + strSize;
                             model->setItem(num, k, item);
                             //fin << setw(NUMBERS_WIDTH) << arr[ptr_tek_el + step][k];
                             //cout << setw(NUMBERS_WIDTH) << arr[ptr_tek_el + step][k];
-                        }
+                    }
+                }
                 num++;
                         //fin << endl;
                         //cout << endl;
@@ -398,11 +387,6 @@ void MainWindow::on_pushButton_3_clicked() {
             }
 
         }
-        qDebug() << "num = " << num;
-
-
-
-
         model->setHorizontalHeaderLabels(colName);
         ui->tableView_2->setModel(model);
 
@@ -411,9 +395,3 @@ void MainWindow::on_pushButton_3_clicked() {
 
 }
 
-
-void MainWindow::on_pushButton_4_clicked()
-{
-   // if (ui->tableView_2->)
-    ui->tableView_2->clearSpans();
-}

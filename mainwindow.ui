@@ -204,8 +204,8 @@
    <widget class="QPushButton" name="pushButtonSave">
     <property name="geometry">
      <rect>
-      <x>1070</x>
-      <y>20</y>
+      <x>710</x>
+      <y>630</y>
       <width>99</width>
       <height>27</height>
      </rect>
@@ -227,8 +227,8 @@
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
-      <x>810</x>
-      <y>620</y>
+      <x>560</x>
+      <y>630</y>
       <width>99</width>
       <height>27</height>
      </rect>
@@ -256,6 +256,16 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <action name="actionGhj">
+   <property name="text">
+    <string>ghj</string>
+   </property>
+  </action>
+  <action name="actionSdfg">
+   <property name="text">
+    <string>sdfg</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
