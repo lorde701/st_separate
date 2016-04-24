@@ -79,7 +79,7 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>1070</x>
       <y>600</y>
       <width>99</width>
       <height>27</height>
@@ -92,7 +92,7 @@
    <widget class="QLabel" name="labelEps">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>530</x>
       <y>510</y>
       <width>101</width>
       <height>20</height>
@@ -105,7 +105,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>530</x>
       <y>550</y>
       <width>101</width>
       <height>20</height>
@@ -118,7 +118,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>530</x>
       <y>590</y>
       <width>111</width>
       <height>20</height>
@@ -131,7 +131,7 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>250</x>
       <y>550</y>
       <width>241</width>
       <height>21</height>
@@ -144,7 +144,7 @@
    <widget class="QLineEdit" name="lineEditEps">
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>650</x>
       <y>510</y>
       <width>113</width>
       <height>27</height>
@@ -154,7 +154,7 @@
    <widget class="QLineEdit" name="lineEditStep">
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>650</x>
       <y>550</y>
       <width>113</width>
       <height>27</height>
@@ -164,7 +164,7 @@
    <widget class="QLineEdit" name="lineEditColNum">
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>650</x>
       <y>590</y>
       <width>113</width>
       <height>27</height>
@@ -174,14 +174,17 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>562</x>
+      <x>510</x>
       <y>550</y>
-      <width>611</width>
+      <width>491</width>
       <height>27</height>
      </rect>
     </property>
    </widget>
    <widget class="QTableView" name="tableView">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -189,6 +192,33 @@
       <width>571</width>
       <height>421</height>
      </rect>
+    </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>ForbiddenCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::WheelFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::ActionsContextMenu</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
+    <property name="dragEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="dragDropOverwriteMode">
+     <bool>true</bool>
+    </property>
+    <property name="cornerButtonEnabled">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QTableView" name="tableView_2">
@@ -200,12 +230,18 @@
       <height>421</height>
      </rect>
     </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>ForbiddenCursor</cursorShape>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
    </widget>
    <widget class="QPushButton" name="pushButtonSave">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>630</y>
+      <x>1070</x>
+      <y>550</y>
       <width>99</width>
       <height>27</height>
      </rect>
@@ -214,27 +250,17 @@
      <string>Сохранить</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEditWriteFile">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>20</y>
-      <width>461</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>630</y>
+      <x>1070</x>
+      <y>500</y>
       <width>99</width>
       <height>27</height>
      </rect>
     </property>
     <property name="text">
-     <string>Вывести!</string>
+     <string>Вывести</string>
     </property>
    </widget>
   </widget>

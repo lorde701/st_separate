@@ -36,6 +36,12 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void on_lineEditReadFile_textChanged(const QString &arg1);
+
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+    void on_lineEdit_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 

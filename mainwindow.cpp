@@ -9,9 +9,11 @@
 #include "QStandardItem"
 
 double *array;
-int strSize, colSize;
+QStringList strForFile;
+int strSize, colSize;  // размер строки, размер столбца??
 QStringList colName;
 QList<int> strNumbers;
+bool flag = false;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEditStep->hide();
     ui->label_5->hide();
     ui->lineEdit->hide();
+
 }
 
 void MainWindow::readFile(QString nameFileOpen)
@@ -111,7 +114,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString nameOpenFile = QFileDialog::getOpenFileName(0, "Открыть файл", "../Separate", "*.txt *.xls *.xlsx");
+    QString nameOpenFile = QFileDialog::getOpenFileName(0, "Открыть файл", "../MyPrograms/st_separate", "*.txt *.xls *.xlsx");
     ui->lineEditReadFile->setText(nameOpenFile);
     readFile(nameOpenFile);
 
@@ -132,6 +135,12 @@ void MainWindow::on_pushButton_clicked()
         }
 
     ui->tableView->setModel(model);
+
+    /*for (int i = 0; i < colSize - 1; i++ ) {
+        for (int j = o; j < strSize; j++) {
+
+        }
+    }*/
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -165,7 +174,7 @@ void MainWindow::on_radioButton_2_clicked()
 
 void MainWindow::on_lineEditEps_editingFinished()
 {
-
+    flag = false;
     QString temp = ui->lineEditEps->text();
     if (!temp.isEmpty()) {
         bool ok;
@@ -182,7 +191,7 @@ void MainWindow::on_lineEditEps_editingFinished()
 
 void MainWindow::on_lineEditStep_editingFinished()
 {
-
+    flag = false;
     QString temp = ui->lineEditStep->text();
     if (!temp.isEmpty()) {
         bool ok;
@@ -198,6 +207,7 @@ void MainWindow::on_lineEditStep_editingFinished()
 
 void MainWindow::on_lineEditColNum_editingFinished()
 {
+    flag = false;
     QString temp = ui->lineEditColNum->text();
     if (!temp.isEmpty()) {
         bool ok;
@@ -214,6 +224,7 @@ void MainWindow::on_lineEditColNum_editingFinished()
 void MainWindow::on_lineEdit_editingFinished()
 {
     bool ok;
+    strNumbers.clear();
     QString temp = ui->lineEdit->text();
     QStringList strList = temp.split(" ", QString::SkipEmptyParts);
     qDebug() << "temp = " << temp;
@@ -250,29 +261,35 @@ void MainWindow::on_lineEdit_editingFinished()
 
 void MainWindow::on_pushButtonSave_clicked() {
     QString nameSaveFile = QFileDialog::getSaveFileName(0, "Сохранить файл", "../Separate", "*.txt *.xls *.xlsx");
-    ui->lineEditWriteFile->setText(nameSaveFile);
 
     QFile saveFile (nameSaveFile);
     if (saveFile.open(QIODevice::WriteOnly)) {
-        saveFile.write("fhbdklskjhbfdkj");
+      //  saveFile.write("fhbdklskjhbfdkj");
+        QTextStream writeStream(&saveFile);
+        for ( int i = 0; i < strForFile.size(); i++ ) {
+            writeStream << strForFile.front();
+            //saveFile.write(strForFile.front());
+            //saveFile.Append(strForFile.front());
+            strForFile.pop_front();
+        }
     }
+
 }
 
 void MainWindow::on_pushButton_3_clicked() {
 
     QStandardItemModel *model = new QStandardItemModel;
     QStandardItem *item;
-    model->setHorizontalHeaderLabels(QStringList(""));
+    //model->setHorizontalHeaderLabels(QStringList(""));
     QStringList tempColName = colName;
 
+    QMessageBox::warning(this, tr("Предупреждение"),
+                               tr("Нажатие на кнопку"),
+                               QMessageBox::Ok);
 
     ui->tableView_2->setModel(model);
 
-
-    //QTableWidgetItem *item;
     if (ui->radioButton->isChecked()) {
-        //ui->tableWidget_2->setColumnCount(strSize - strNumbers.size());
-        //ui->tableWidget_2->setRowCount(colSize);
         int k = 0;
         int elStrNumbers;
         QStringList horizontalHeader;
@@ -280,44 +297,81 @@ void MainWindow::on_pushButton_3_clicked() {
 
 
         if (!colName.isEmpty()) {
-        for (int i = 0; i < strSize; i++) {
-            if(strNumbers[inp]-1 != i)
-                horizontalHeader.append(QString(tempColName.front()));
-            else
-                if (inp != strNumbers.size()-1)
-                            inp++;
-            tempColName.pop_front();
-        }
+            for (int i = 0; i < strSize; i++) {
+                if(strNumbers[inp]-1 != i)
+                    horizontalHeader.append(QString(tempColName.front()));
+                else
+                    if (inp != strNumbers.size()-1)
+                                inp++;
+                tempColName.pop_front();
+            }
         }
 
-        inp = 0;
+       /* inp = 0;
+        for (int i = 0; i < colSize-1; i++) {
+
             for (int j = 0; j < strSize; j++)  {
-                elStrNumbers = strNumbers[k]-1;
 
-                qDebug() << (elStrNumbers != j) << "\n" <<  elStrNumbers << " != " << j;
-                if (elStrNumbers != j) {
-                   int l = 0;
-                    for ( int i = 0; i < colSize-1; i++) {
-                            item = new QStandardItem(QString::number(array[j + l]));
-                            l = l + strSize;
-                            model->setItem(i, inp, item);
-                           // ui->tableWidget_2->setItem(inp, i, item);
-                    }
+                if (strNumbers[inp]-1 != j) {
+                   //int l = 0;
+                    item = new QStandardItem(QString::number(array[j + i]));
+                    //l = l + strSize;
+                    model->setItem(i, inp, item);
                     inp++;
                 }
                 else
-                    if (k != strNumbers.size()-1)
-                        k++;
+                    if (inp != strNumbers.size()-1)
+                        inp++;
 
             }
-            model->setHorizontalHeaderLabels(horizontalHeader);
-            ui->tableView_2->setModel(model);
+        }*/
+        // старый вариант
+        inp = 0;
+        for (int j = 0; j < strSize; j++)  {
+            elStrNumbers = strNumbers[k]-1;
+
+            if (elStrNumbers != j) {
+               int l = 0;
+                for ( int i = 0; i < colSize-1; i++) {
+                        item = new QStandardItem(QString::number(array[j + l]));
+                        l = l + strSize;
+                        model->setItem(i, inp, item);
+                }
+                inp++;
+            }
+            else
+                if (k != strNumbers.size()-1)
+                    k++;
+
+        }
+        /*
+        inp = 0;
+                for (int j = 0; j < strSize; j++)  {
+                    elStrNumbers = strNumbers[k]-1;
+
+                    if (elStrNumbers != j) {
+                       int l = 0;
+                        for ( int i = 0; i < colSize-1; i++) {
+                                item = new QStandardItem(QString::number(array[j + l]));
+                                l = l + strSize;
+                                model->setItem(i, inp, item);
+                        }
+                        inp++;
+                    }
+                    else
+                        if (inp != strNumbers.size()-1)
+                            inp++;
+
+                }
+*/
+
+        model->setHorizontalHeaderLabels(horizontalHeader);
+        ui->tableView_2->setModel(model);
     }
 
     if (ui->radioButton_2->isChecked()) {
 
-       // QStringList tempColName = colName;
-       // QStringList horizontalHeader;
+        flag = true;
 
         int amount_col = strSize;
         int amount_str = colSize;
@@ -326,14 +380,20 @@ void MainWindow::on_pushButton_3_clicked() {
         int col_number = ui->lineEditColNum->text().toInt()-1;
         int num = 0;
 
-
+        QString tempStr;
         for ( int k = 0; k < amount_col; k++ )
         {
             item = new QStandardItem(QString::number(array[0*strSize + k]));
             model->setItem(num, k, item);
             //fin << setw(NUMBERS_WIDTH) << arr[0][k];
             //cout << setw(NUMBERS_WIDTH) << arr[0][k];
+            tempStr = tempStr + QString::number(array[0*strSize + k]);
+            for (int u = 0; u < 13 - (array[0*strSize + k])/1; u++ ) {
+                tempStr = tempStr + ' ';
+            }
         }
+        strForFile.append(tempStr);
+        strForFile.append("\n");
         num++;
 
         int ptr_tek_el = 0;
@@ -348,15 +408,21 @@ void MainWindow::on_pushButton_3_clicked() {
                 temp = temp < 0 ? -temp : temp;
                 if ( ((temp > eps) || (arr_ptr == 0)) && (ptr_tek_el + step < amount_str))
                 {
+                    //QString tempStr;
                     for ( int k = 0; k < amount_col; k++ )
                     {
                         item = new QStandardItem(QString::number(array[j*strSize + k]));
                         //l = l + strSize;
                         model->setItem(num, k, item);
-
+                        tempStr = tempStr + QString::number(array[j*strSize + k]);
+                        for (int u = 0; u < 13 - (array[j*strSize + k])/1; u++ ) {
+                            tempStr = tempStr + ' ';
+                        }
                         //fin << setw(NUMBERS_WIDTH) << arr[j][k];
                         //cout << setw(NUMBERS_WIDTH) << arr[j][k];
                     }
+                    strForFile.append(tempStr);
+                    strForFile.append("\n");
                     num++;
                     //fin << endl;
                     //cout << endl;
@@ -366,6 +432,7 @@ void MainWindow::on_pushButton_3_clicked() {
                 else
                     j = j+1;
             }
+           // QString tempStr;
             if ( ptr_tek_el + step < amount_str )
             {
                 for ( int k = 0; k < amount_col; k++ ) {
@@ -377,8 +444,15 @@ void MainWindow::on_pushButton_3_clicked() {
                             model->setItem(num, k, item);
                             //fin << setw(NUMBERS_WIDTH) << arr[ptr_tek_el + step][k];
                             //cout << setw(NUMBERS_WIDTH) << arr[ptr_tek_el + step][k];
+                            tempStr = tempStr + QString::number(array[(ptr_tek_el+step)*strSize + k]);
+                            for (int u = 0; u < 13 - array[(ptr_tek_el+step)*strSize + k]; u++ ) {
+                                tempStr = tempStr + ' ';
+                            }
                     }
                 }
+                 strForFile.append(tempStr);
+                 strForFile.append("\n");
+
                 num++;
                         //fin << endl;
                         //cout << endl;
@@ -389,9 +463,33 @@ void MainWindow::on_pushButton_3_clicked() {
         }
         model->setHorizontalHeaderLabels(colName);
         ui->tableView_2->setModel(model);
-
-
     }
 
 }
 
+
+void MainWindow::on_lineEditReadFile_textChanged(const QString &arg1)
+{
+    flag = false;
+
+}
+
+
+
+void MainWindow::on_lineEdit_textEdited(const QString &arg1)
+{/*
+    flag = false;
+
+
+    QStandardItemModel *model = new QStandardItemModel; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&&&&&&&????
+     QStandardItem *item = new QStandardItem ("Работает");
+    model->setItem(0,0,item);
+    model->setHorizontalHeaderLabels(QStringList(""));
+
+
+    ui->tableView_2->setModel(model);
+
+    QMessageBox::warning(this, tr("Предупреждение"),
+                               tr("textEdited"),
+                               QMessageBox::Ok);*/
+}
