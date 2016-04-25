@@ -12,7 +12,10 @@ double *array;
 QStringList strForFile;
 int strSize, colSize;  // размер строки, размер столбца??
 QStringList colName;
+QStringList colNameTramsfArray;
 QList<int> strNumbers;
+QList<double> transformArray;
+int amountColInTransformArray;
 bool flag = false;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -30,6 +33,105 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit->hide();
 
 }
+
+void MainWindow::fillTransformArray()
+{
+    transformArray.clear();
+    flag = true;
+
+
+    if (ui->radioButton_2->isChecked()) {
+
+        int amount_col = strSize;
+        int amount_str = colSize;
+        int step = ui->lineEditStep->text().toInt();
+        QString t = ui->lineEditEps->text();
+        t.replace(",", ".");
+        double eps = t.toDouble();
+        int col_number = ui->lineEditColNum->text().toInt()-1;
+        int num = 0;
+
+        for ( int k = 0; k < strSize; k++ )
+        {
+            transformArray.append(array[0*strSize + k]);
+
+        }
+        num++;
+
+        int ptr_tek_el = 0;
+        int j = ptr_tek_el + 1;
+        while ( j < amount_str ) {
+            while ( (j < ptr_tek_el + step) && (j < amount_str) ) {
+                double arr_ptr = array[ptr_tek_el*strSize + col_number]; //atof(arr[ptr_tek_el][col_number].c_str());
+                double arr_tek = array[j*strSize + col_number]; //atof(arr[j][col_number].c_str());
+                double temp = double((arr_ptr - arr_tek)/arr_ptr);
+                temp = temp < 0 ? -temp : temp;
+                if ( ((temp > eps) || (arr_ptr == 0)) && (ptr_tek_el + step < amount_str)) {
+                    for ( int k = 0; k < amount_col; k++ ) {
+                        transformArray.append(array[j*strSize + k]);
+                    }
+                    num++;
+                    ptr_tek_el = j;
+                    j = ptr_tek_el + 1;
+                }
+                else
+                    j = j+1;
+            }
+            if ( ptr_tek_el + step < amount_str ) {
+                for ( int k = 0; k < amount_col; k++ ) {
+                    int dl = strSize*colSize - strSize;
+                    int n = (ptr_tek_el+step)*strSize + k;
+                    if (n < dl) {
+                             transformArray.append(array[(ptr_tek_el+step)*strSize + k]);
+
+                    }
+                }
+                num++;
+                ptr_tek_el += step;
+                j = ptr_tek_el + 1;
+            }
+
+        }
+    }
+
+    if (ui->radioButton->isChecked()) {
+        QStringList tempColName = colName;
+        colNameTramsfArray.clear();
+        int n = 0;
+        //strNumbers        номера столбцов для удаления
+        if (!colName.isEmpty()) {
+            n = 0;
+           // QStringList horizontalHeader;
+            for (int i = 0; i < strSize; i++) {
+                if (strNumbers[n]-1 != i)
+                    colNameTramsfArray.append(tempColName.front());
+                else
+                    if (n != strNumbers.size()-1)
+                                n++;
+                tempColName.pop_front();
+            }
+        }
+        int ptr = 0;
+
+        for (int j = 0; j < colSize-1; j++) {
+            n = 0;
+            for (int i = 0; i < strSize; i++) {
+                if (strNumbers[n]-1 != i) {
+                    transformArray.append(array[ptr]);
+                }
+                else {
+                    if (n != strNumbers.size()-1) {
+                        n++;
+                    }
+
+                }
+                ptr++;
+
+            }
+        }
+    }
+}
+
 
 void MainWindow::readFile(QString nameFileOpen)
     {
@@ -114,7 +216,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString nameOpenFile = QFileDialog::getOpenFileName(0, "Открыть файл", "../MyPrograms/st_separate", "*.txt *.xls *.xlsx");
+    QString nameOpenFile = QFileDialog::getOpenFileName(0, "Открыть файл", "../MyPrograms/st_separate", "*.txt");
     ui->lineEditReadFile->setText(nameOpenFile);
     readFile(nameOpenFile);
 
@@ -176,6 +278,7 @@ void MainWindow::on_lineEditEps_editingFinished()
 {
     flag = false;
     QString temp = ui->lineEditEps->text();
+    temp.replace("," , ".");
     if (!temp.isEmpty()) {
         bool ok;
         temp.toDouble(& ok);
@@ -223,6 +326,7 @@ void MainWindow::on_lineEditColNum_editingFinished()
 
 void MainWindow::on_lineEdit_editingFinished()
 {
+    flag = false;
     bool ok;
     strNumbers.clear();
     QString temp = ui->lineEdit->text();
@@ -260,36 +364,80 @@ void MainWindow::on_lineEdit_editingFinished()
 }
 
 void MainWindow::on_pushButtonSave_clicked() {
-    QString nameSaveFile = QFileDialog::getSaveFileName(0, "Сохранить файл", "../Separate", "*.txt *.xls *.xlsx");
-
+    QString nameSaveFile = QFileDialog::getSaveFileName(0, "Сохранить файл", "../MyPrograms/st_separate/tests", "*.txt");
     QFile saveFile (nameSaveFile);
     if (saveFile.open(QIODevice::WriteOnly)) {
       //  saveFile.write("fhbdklskjhbfdkj");
+        if (flag == false) {
+            fillTransformArray();
+            flag = true;
+        }
+        QList<double> tempTransfArray = transformArray;
         QTextStream writeStream(&saveFile);
-        for ( int i = 0; i < strForFile.size(); i++ ) {
-            writeStream << strForFile.front();
-            //saveFile.write(strForFile.front());
-            //saveFile.Append(strForFile.front());
-            strForFile.pop_front();
+        if (ui->radioButton_2->isChecked()) {
+            if (!colName.isEmpty()) {
+                QStringList t = colName;
+                while (!t.isEmpty()) {
+                    writeStream << t.front();
+                    QString tt = t.front();
+                    int aa = tt.size();
+                    for (int g = 0; g < 16 - aa; g++) {
+                        writeStream << " ";
+                    }
+                    t.pop_front();
+                }
+                writeStream << endl;
+            }
+            while (!tempTransfArray.isEmpty()) {
+                for (int i = 0; i < strSize; i++) {
+                    writeStream << tempTransfArray.front();
+
+                    for (int j = 0; j < 16 - QString::number(tempTransfArray.front()).size(); j++) {
+                        writeStream << " ";
+                    }
+                    tempTransfArray.pop_front();
+               }
+                writeStream << endl;
+            }
+        }
+
+        if (ui->radioButton->isChecked()) {
+            if (!colNameTramsfArray.isEmpty()) {
+                QStringList t = colNameTramsfArray;
+                while (!t.isEmpty()) {
+                    writeStream << t.front();
+                    QString tt = t.front();
+                    int aa = tt.size();
+                   for ( int g = 0; g < 16 - aa; g++ ) {
+                        writeStream << " ";
+                    }
+                    t.pop_front();
+                }
+                writeStream << endl;
+            }
+
+            while (!tempTransfArray.isEmpty()) {
+                for ( int i = 0; i < strSize - strNumbers.size(); i++) {
+                    writeStream << tempTransfArray.front();
+                    for (int j = 0; j < 16 - QString::number(tempTransfArray.front()).size(); j++) {
+                        writeStream << " ";
+                    }
+                    tempTransfArray.pop_front();
+                }
+                writeStream << endl;
+            }
         }
     }
-
 }
 
 void MainWindow::on_pushButton_3_clicked() {
 
+
     QStandardItemModel *model = new QStandardItemModel;
     QStandardItem *item;
-    //model->setHorizontalHeaderLabels(QStringList(""));
-    QStringList tempColName = colName;
-
-    QMessageBox::warning(this, tr("Предупреждение"),
-                               tr("Нажатие на кнопку"),
-                               QMessageBox::Ok);
-
     ui->tableView_2->setModel(model);
 
-    if (ui->radioButton->isChecked()) {
+   /* if (ui->radioButton->isChecked()) {
         int k = 0;
         int elStrNumbers;
         QStringList horizontalHeader;
@@ -306,25 +454,6 @@ void MainWindow::on_pushButton_3_clicked() {
                 tempColName.pop_front();
             }
         }
-
-       /* inp = 0;
-        for (int i = 0; i < colSize-1; i++) {
-
-            for (int j = 0; j < strSize; j++)  {
-
-                if (strNumbers[inp]-1 != j) {
-                   //int l = 0;
-                    item = new QStandardItem(QString::number(array[j + i]));
-                    //l = l + strSize;
-                    model->setItem(i, inp, item);
-                    inp++;
-                }
-                else
-                    if (inp != strNumbers.size()-1)
-                        inp++;
-
-            }
-        }*/
         // старый вариант
         inp = 0;
         for (int j = 0; j < strSize; j++)  {
@@ -344,34 +473,103 @@ void MainWindow::on_pushButton_3_clicked() {
                     k++;
 
         }
-        /*
-        inp = 0;
-                for (int j = 0; j < strSize; j++)  {
-                    elStrNumbers = strNumbers[k]-1;
-
-                    if (elStrNumbers != j) {
-                       int l = 0;
-                        for ( int i = 0; i < colSize-1; i++) {
-                                item = new QStandardItem(QString::number(array[j + l]));
-                                l = l + strSize;
-                                model->setItem(i, inp, item);
-                        }
-                        inp++;
-                    }
-                    else
-                        if (inp != strNumbers.size()-1)
-                            inp++;
-
-                }
-*/
-
         model->setHorizontalHeaderLabels(horizontalHeader);
         ui->tableView_2->setModel(model);
     }
 
+
+    */
+
+
+    QList<double> tempTransfArray;
+
+
+
     if (ui->radioButton_2->isChecked()) {
 
-        flag = true;
+        QString text1 = ui->lineEditEps->text();
+        QString text2 = ui->lineEditStep->text();
+        QString text3 = ui->lineEditColNum->text();
+        if ((!text1.isEmpty()) && (!text2.isEmpty()) && (!text3.isEmpty())) {
+
+            if (flag == false) {
+                fillTransformArray();
+            }
+
+            tempTransfArray = transformArray;
+            int j = 0;
+            while (!tempTransfArray.isEmpty()) {
+                for(int i = 0; i < strSize; i++) {
+                    item = new QStandardItem(QString::number(tempTransfArray.front()));
+                    model->setItem(j,i,item);
+                    tempTransfArray.pop_front();
+                }
+                j++;
+            }
+            if(!colName.isEmpty()) {
+                model->setHorizontalHeaderLabels(colName);
+            }
+            ui->tableView_2->setModel(model);
+
+        }
+        else {
+            QMessageBox::warning(this, tr("Предупреждение"),
+                                       tr("Не все поля заполнены!"),
+                                       QMessageBox::Ok);
+        }
+    }
+
+
+        
+        
+        if (ui->radioButton->isChecked()) {
+            QString text = ui->lineEdit->text();
+            //strNumbers        номера столбцов для удаления
+            if (!text.isEmpty()) {
+
+                if (flag == false) {
+                    fillTransformArray();
+                }
+
+                tempTransfArray = transformArray;
+
+                if (!colNameTramsfArray.isEmpty()) {
+                    model->setHorizontalHeaderLabels(colNameTramsfArray);
+
+                   // QStringList horizontalHeader;
+                   // for (int i = 0; i < strSize; i++) {
+                   //     if(strNumbers[inp]-1 != i)
+                   //         horizontalHeader.append(QString(tempColName.front()));
+                   //     else
+                   //         if (inp != strNumbers.size()-1)
+                   //                     inp++;
+                   //     tempColName.pop_front();
+                   //
+                }
+
+                int j = 0;
+                while(!tempTransfArray.isEmpty()) {
+                //for (int j = 0; j < colSize; j++) {
+                    for (int i = 0; i < strSize-strNumbers.size(); i++) {
+                        item = new QStandardItem(QString::number(tempTransfArray.front()));
+                        model->setItem(j, i, item);
+                        tempTransfArray.pop_front();
+                    }
+                    j++;
+                }
+                ui->tableView_2->setModel(model);
+            }
+            else {
+                QMessageBox::warning(this, tr("Предупреждение"),
+                                           tr("Не все поля заполнены!"),
+                                           QMessageBox::Ok);
+            }
+        }
+
+
+   /*  if (ui->radioButton_2->isChecked()) {
+
+       flag = true;
 
         int amount_col = strSize;
         int amount_str = colSize;
@@ -414,6 +612,9 @@ void MainWindow::on_pushButton_3_clicked() {
                         item = new QStandardItem(QString::number(array[j*strSize + k]));
                         //l = l + strSize;
                         model->setItem(num, k, item);
+
+                        transformArray.append(array[j*strSize + k]);
+
                         tempStr = tempStr + QString::number(array[j*strSize + k]);
                         for (int u = 0; u < 13 - (array[j*strSize + k])/1; u++ ) {
                             tempStr = tempStr + ' ';
@@ -463,7 +664,7 @@ void MainWindow::on_pushButton_3_clicked() {
         }
         model->setHorizontalHeaderLabels(colName);
         ui->tableView_2->setModel(model);
-    }
+    }*/
 
 }
 
@@ -477,7 +678,8 @@ void MainWindow::on_lineEditReadFile_textChanged(const QString &arg1)
 
 
 void MainWindow::on_lineEdit_textEdited(const QString &arg1)
-{/*
+{
+    /*
     flag = false;
 
 

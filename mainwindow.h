@@ -47,6 +47,7 @@ private:
 
 public:
     void readFile(QString nameFileOpen);
+    void fillTransformArray();
 };
 
 #endif // MAINWINDOW_H
